@@ -1,0 +1,21 @@
+algorítmo "Fase da vida"
+variáveis
+	i:real;
+início
+	escreva("Digite a idade");
+	leia(i);
+	se(i>0) então
+		escreva("Essa idade é de ");
+		se(i<13) então
+			escreva("Criança");
+		senão se(i<18) então
+			escreva("Adolescente");
+		senão se(i<65) então
+			escreva("Adulto");
+		senão
+			escreva("Idoso");
+		fimse
+	senão
+		escreva("Valor errado");
+	fimse
+fimalgoritmo

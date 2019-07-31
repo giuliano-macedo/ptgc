@@ -1,0 +1,21 @@
+algoritmo "ricci"
+variaveis
+n,x,y,z:inteiro;
+inicio
+escreva("Digite um número");
+leia(n);
+escreva("Digite o primeiro termo da série ricci");
+leia(x);
+escreva("Digite o segundo termo da séria ricci");
+leia(y);
+se(x=0 e y=0)entao
+escreva("Valores incorretos para série ricci");
+senao
+enquanto(x<n)faca
+escreva(x);
+z<-y;
+y+=x;
+x<-z;
+fimenquanto
+fimse
+fimalgoritmo

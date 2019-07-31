@@ -1,0 +1,6 @@
+algorítmo "Fase da vida"
+variaveis
+	i,j:real;
+início
+	i <-2;
+fimalgoritmo
