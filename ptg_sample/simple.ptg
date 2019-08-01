@@ -1,6 +1,9 @@
-algorítmo "Fase da vida"
+algorítmo "Bem simples"
 variaveis
 	i,j:real;
+	s:caractere;
 início
-	i <-2;
+	i<-2;
+	j<-2.2;
+	s<-"test<-string+2";
 fimalgoritmo

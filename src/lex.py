@@ -1,48 +1,42 @@
 import json
 import re
-from grammar import grammar
 from argparse import ArgumentParser
 from itertools import chain,tee
 import itertools
-# https://stackoverflow.com/a/20415373/5133524
-def pairwise(iterable):
-    a, b = tee(iterable)
-    next(b, None)
-    return zip(a, b)   
+import ox
+from os import remove
 
-separators={
-	" ",
-	",",
-	";"
-}
-exclude={
-	"\t",
-	"\n"
-}
+quote=r"(\'|\")"
+char=r"[a-zA-z]"
+integer=r"(\+|\-|)\d+"
+float_classic=rf"{integer}(\.\d*)"
+float_e=rf"({float_classic}|{integer})((e|E)({float_classic}|{integer}))?"
+tokens=[
+	('SCRIPT_START', r'algor(i|í)tmo'),
+	("STRING",rf"{quote}.*{quote}"), #does not work with scaped string
+	('VARS_BLOCK', r'vari(a|á)veis'),
+	('COMMA', r'\,'),
+	('SEPARATOR', r'\:'),
+	('TYPE', r'real|inteiro|caractere'),
+	("END_BLOCK",r";"),
+	("MAIN_START",r"in(i|í)cio"),
+	("MAIN_END",r"fimalgor(i|í)tmo"),
+	("ATTR",r"<-"),
+	("AROP",r"\+|\-|\*|\/"),
+	("NUMBER",rf"{float_classic}|{float_e}"),
+	("ID",rf"{char}\w*"),
+]
 
 parser=ArgumentParser()
 parser.add_argument("input",help="source file")
 args=parser.parse_args()
 
-buff=""
-out=[]
-f=open("args.input)",encondig="utf-8")
-for char,charnext in pairwise(chain.from_iterable(f)):
-	if char in exclude:
-		continue
-	buff+=char
-	if charnext not in separators:
-		continue
-	for i,(token_name,function) in enumerate(grammar.items()):
-		token_valid,token_value=function(buff)
-		if token_valid:
-			print(f"{{{i}}}[{len(out)}]({repr(buff)}) match with {token_name}")
-			out.append((token_name,token_value))
-			buff=""
-			break
-f.close()
-tokens={"tokens":out}
-# print(json.dumps(tokens,indent=4))
-assert buff=="",repr(buff)
+with open(args.input,encoding="utf-8") as f:
+	lexer = ox.make_lexer(tokens)
+	out=[(obj.type,obj.value) for obj in lexer(f.read())]
+print(json.dumps(out,indent=4,ensure_ascii=False))
 with open("tokens.json","w") as f:
-	json.dump(tokens,f,indent=4)
+	json.dump({"tokens":out},f,indent=4,ensure_ascii=False)
+# lexer() creates this 2 files for some reason
+remove("parsetab.py")
+remove("parser.out")
