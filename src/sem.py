@@ -2,6 +2,17 @@ import json
 from argparse import ArgumentParser
 from collections import namedtuple
 
+def expression_handler(command):
+	#TODO
+	return command
+
+def attr_handler(command):
+	ans=[command[0].value,expression_handler(command[2:])]
+	return ans
+def function_call_handler(command):
+	fun=command[0].value
+	assert (command[1].name=="OPEN_P" ) and (command[-1].name=="CLOSE_P")
+	return [fun,expression_handler(command[2:-1])]
 def extract_str(token):
 	assert token.name=="STRING"
 	return token.value[1:-1]
@@ -36,7 +47,7 @@ def command_type(tokens):
 	if tokens[0].name=="DEFAULT":return "DEFAULT"
 
 	raise RuntimeError("Unexpected token",tokens[0])
-	
+
 class Token(namedtuple("Token",["name","value"])):
 	def __str__(self):
 		return f"<{self.name},{repr(self.value)}>"
@@ -80,8 +91,22 @@ for command in split_tokens(vars_block,"END_BLOCK"):
 assert tokens[-1].name=="MAIN_END"
 tokens=tokens[:-1]
 
-print(symtable)
-
+print(*symtable.values(),sep="\n")
+main=[]
 for command in split_tokens(tokens,"END_BLOCK","IF_END","FOR_END","WHILE_END","SWITCH_END"):
-	# print(command)
-	print(command_type(command))
+	def handler_hook(name):
+		if command_type(command)==name:
+			main.append({
+				"name":name.lower(),
+				"child":globals()[f"{name.lower()}_handler"](command)
+			})
+	handler_hook("ATTR")
+	handler_hook("FUNCTION_CALL")
+	# handler_hook("IF")
+	# handler_hook("ELSE")
+	# handler_hook("FOR")
+	# handler_hook("WHILE")
+	# handler_hook("SWITCH")
+	# handler_hook("CASE")
+	# handler_hook("DEFAULT")
+print(*main,sep="\n")
