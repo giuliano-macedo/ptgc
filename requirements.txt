@@ -1,3 +1,2 @@
-toolz
-sidekick==0.3.0
-ox-parser
+lark-parser
+graphviz

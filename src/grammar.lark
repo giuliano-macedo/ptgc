@@ -1,0 +1,69 @@
+
+start: SCRIPT_START STRING VARIABLES vars_block* MAIN_START main MAIN_END
+main:command*
+vars_block : ID ("," ID)* ":" TYPE ";"
+command : attribution
+	|(command_increment ";")
+	|(stop ";")
+	|(function_call ";")
+	|command_conditional
+	|command_loop
+command_increment : ID "+=" exp
+	|ID "++"
+stop:STOP
+attribution: ID ATTR (exp|STRING) ";"
+function_call : function_print
+	|function_scan
+function_print:"escreva" "(" (exp|STRING) ("," (exp|STRING))* ")"
+function_scan :"leia" "(" ID ")"
+
+command_conditional: command_if
+	|command_switch
+command_if: IF "(" exp ")" THEN command* (ELSE IF "(" exp ")" THEN command* )* [ELSE command*] IF_END
+command_switch: SWITCH "(" exp ")" (CASE (ID|NUMBER|STRING) ":" command*)* DEFAULT ":" command* SWITCH_END
+
+command_loop:command_while
+	|command_for
+command_for:FOR ID FROM exp UNTIL exp STEP NUMBER DO command* FOR_END
+command_while: WHILE "(" exp ")" DO command* WHILE_END
+
+exp : exp (AROP|BINOP) exp
+	| "(" exp ")"
+	| ID
+	| NUMBER
+
+
+SCRIPT_START: /algor(i|í)tmo/
+VARIABLES: /vari(a|á)veis/
+TYPE: /real|inteiro|caractere/
+MAIN_START:/in(i|í)cio/
+MAIN_END:/fimalgor(i|í)tmo/
+ELSE:/sen(a|ã)o/
+IF:/se/
+THEN:/ent(a|ã)o/
+IF_END:/fimse/
+FOR:/para/
+FROM:/de/
+UNTIL:/at(e|é)/
+STEP:/passo/
+DO:/fa(c|ç)a/
+FOR_END:/fimpara/
+WHILE:/enquanto/
+WHILE_END:/fimenquanto/
+SWITCH:/escolha/
+DEFAULT:/casopadr(a|ã)o/
+CASE:/caso/
+STOP:/pare/
+SWITCH_END:/fimescolha/
+ATTR:"<-"
+AROP:/\+|\-|\*|\/|MOD|\^/
+BINOP:/\>|\>\=|\<|\<\=|\=|\!\=|e|ou/
+
+STRING : ESCAPED_STRING
+NUMBER:SIGNED_NUMBER
+ID:/[a-zA-Z_]\w*/
+
+%import common.SIGNED_NUMBER
+%import common.ESCAPED_STRING
+%import common.WS
+%ignore WS
