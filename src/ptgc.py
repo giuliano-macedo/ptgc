@@ -19,6 +19,44 @@ def check_ids(t):
 		return
 	if symtable.get(t.value)==None:
 		raise SyntaxError(f"id {t.value} is not defined!")
+def check_exps(t):
+	if type(t)==Token:
+		if t.type == "STRING":
+			return "caractere"
+		elif t.type=="NUMBER":
+			return "real"
+		elif t.type=="ID":
+			return symtable[t.value]
+		return
+	if t.data!="exp":
+		for c in t.children:
+			check_exps(c)
+	else:
+		if len(t.children)==3:
+			a,op,b=t.children
+			atype,btype=check_exps(a),check_exps(b)
+			# print("value",a.data,op.value,b.data)
+			# print("type ",atype,op.value,btype)
+			if (atype=="caractere") or (btype=="caractere"):
+				#if both a,b are string and operation is not adition or they are different and regardless of the operation
+				if ((atype==btype) and op.value!="+") or (atype!=btype):
+					raise SyntaxError(f"Error, operation {{string ({op.value}) non-string }} is invalid")
+				return "caractere"
+			elif (atype in {"inteiro","real"}) or (btype in {"inteiro","real"}): #this is always true
+				if op.type not in {"BINOP","AROP"}:
+					raise SyntaxError(f"Error, operation ({op.value}) invalid")
+				return "real"
+		else:
+			return check_exps(t.children[0])
+
+
+# intreal={"inteiro","real"}
+# char={"caractere"}
+# exp_rules=[
+# 	(intreal,{"AROP","BINOP"},intreal),
+# 	(char,{"+"},char)
+# ]
+
 def command_f(sub_tree,tab=0):
 	for command in (o.children[0] for o in sub_tree.children):
 		command_hook[command.data](command,tab)
@@ -44,8 +82,9 @@ def attr_f(sub_tree,tab):
 	write(f"{children[0].value}={exp_eval(children[-1])}\n",tab)
 def inc_f(sub_tree,tab):
 	children=sub_tree.children
-	if children[-1].value!="++":
-		write(f"{inorder(children)}\n",tab)
+	# breakpoint()
+	if type(children[-1])!=Token:#if its not token then there is not a ++ token in the end
+		write(f"{inorder(sub_tree)}\n",tab)
 	else:
 		write(f"{children[0].value}+=1\n",tab)
 def function_f(sub_tree,tab):
@@ -54,7 +93,8 @@ def function_f(sub_tree,tab):
 		exp=[c if type(c)==Token else exp_eval(c) for c in f.children]
 		write(f"print({','.join(exp)})\n",tab)
 	else:
-		write(f"{f.children[0]}=input()\n",tab)
+		var=f.children[0]
+		write(f"{var}={ptgtype2pytype[symtable[var]]}(input())\n",tab)
 def conditionals_f(sub_tree,tab):
 	conditional=sub_tree.children[0]
 	children=conditional.children
@@ -70,7 +110,7 @@ def conditionals_f(sub_tree,tab):
 					write(f"elif ({exp_eval(children[i+2])}):\n",tab)
 					command_f(children[i+4],tab+1)
 				else:
-					write("else\n",tab)
+					write("else:\n",tab)
 					command_f(children[i+1],tab+1)
 	elif conditional.data=="command_switch":
 		_id=children[1].value
@@ -99,7 +139,7 @@ def loops_f(sub_tree,tab):
 		write(f"while ({exp_eval(children[1])}):\n",tab)
 		command_f(children[3],tab+1)
 	elif conditional.data=="command_for":
-		write(f"for {children[1].value} in range({','.join([exp_eval(c) for c in children[3:8:2]] )})\n",tab)
+		write(f"for {children[1].value} in range({','.join([exp_eval(c) for c in children[3:8:2]] )}):\n",tab)
 		command_f(children[-2],tab+1)
 command_hook={
 	"attribution"			:attr_f,
@@ -129,15 +169,15 @@ def write(s,tab=0):
 	args.output.write(("\t"*tab)+s)
 write(f"#{tree.children[1].value[1:-1]}\n")
 #vars
-d={
-	"caractere":"str()",
-	"real":		"float()",
-	"inteiro":	"int()"
+ptgtype2pytype={
+	"caractere":"str",
+	"real":		"float",
+	"inteiro":	"int"
 }
 symtable={"escreva":"function","leia":"function"}
 for var in tree.find_data("vars_block"):
 	_type=var.children[-1].value
-	t=d[_type]
+	t=ptgtype2pytype[_type]+"()"
 	_vars=var.children[:-1]
 	for v in _vars:
 		if symtable.get(v)!=None:
@@ -145,6 +185,7 @@ for var in tree.find_data("vars_block"):
 		symtable[v]=_type
 	write(f"{','.join(_vars)}={','.join([t]*len(_vars))}\n")
 check_ids(main)
+check_exps(main)
 #----------------------------------------------------------------
 command_f(main)
 # breakpoint()

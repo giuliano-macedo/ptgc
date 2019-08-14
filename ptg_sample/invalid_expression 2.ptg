@@ -1,0 +1,7 @@
+algoritmo "invalid expression"
+variaveis
+	s:caractere;
+	i:inteiro;
+inicio
+	escreva(1+(i+s));
+fimalgoritmo

@@ -8,8 +8,8 @@ command : attribution
 	|(function_call ";")
 	|command_conditional
 	|command_loop
-command_increment : ID "+=" exp
-	|ID "++"
+command_increment : ID /\+\=/ exp
+	|ID /\+\+/
 stop:STOP
 attribution: ID ATTR (exp|STRING) ";"
 function_call : function_print
