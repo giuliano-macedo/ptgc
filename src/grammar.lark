@@ -19,14 +19,16 @@ function_scan :"leia" "(" ID ")"
 
 command_conditional: command_if
 	|command_switch
-command_if: IF "(" exp ")" THEN command* (ELSE IF "(" exp ")" THEN command* )* [ELSE command*] IF_END
-command_switch: SWITCH "(" exp ")" (CASE (ID|NUMBER|STRING) ":" command*)* DEFAULT ":" command* SWITCH_END
-
+command_if: IF "(" exp ")" THEN if_body (ELSE IF "(" exp ")" THEN if_body )* [ELSE if_body] IF_END
+if_body:command*
+command_switch: SWITCH "(" ID ")" (CASE (ID|NUMBER|STRING) ":" switch_body)* DEFAULT ":" switch_body SWITCH_END
+switch_body:command*
 command_loop:command_while
 	|command_for
-command_for:FOR ID FROM exp UNTIL exp STEP NUMBER DO command* FOR_END
-command_while: WHILE "(" exp ")" DO command* WHILE_END
-
+command_for:FOR ID FROM exp UNTIL exp STEP NUMBER DO for_body FOR_END
+for_body:command*
+command_while: WHILE "(" exp ")" DO while_body WHILE_END
+while_body:command*
 exp : exp (AROP|BINOP) exp
 	| "(" exp ")"
 	| ID
