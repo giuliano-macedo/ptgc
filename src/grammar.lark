@@ -1,10 +1,10 @@
 
-start: SCRIPT_START STRING VARIABLES vars_block* MAIN_START main MAIN_END
+start: SCRIPT_START STRING VARIABLES vars_blocks MAIN_START main MAIN_END
+vars_blocks:vars_block*
 main:command*
 vars_block : ID ("," ID)* ":" TYPE ";"
 command : attribution
 	|(command_increment ";")
-	|(stop ";")
 	|(function_call ";")
 	|command_conditional
 	|command_loop
@@ -22,7 +22,7 @@ command_conditional: command_if
 command_if: IF "(" exp ")" THEN if_body (ELSE IF "(" exp ")" THEN if_body )* [ELSE if_body] IF_END
 if_body:command*
 command_switch: SWITCH "(" ID ")" (CASE (ID|NUMBER|STRING) ":" switch_body)* DEFAULT ":" switch_body SWITCH_END
-switch_body:command*
+switch_body:command* [stop ";"]
 command_loop:command_while
 	|command_for
 command_for:FOR ID FROM exp UNTIL exp STEP NUMBER DO for_body FOR_END
@@ -30,7 +30,7 @@ for_body:command*
 command_while: WHILE "(" exp ")" DO while_body WHILE_END
 while_body:command*
 exp : exp (AROP|BINOP) exp
-	| "(" exp ")"
+	| /\(/ exp /\)/
 	| ID
 	| NUMBER
 
