@@ -22,7 +22,7 @@ class Lark2Graphviz(graphviz.Digraph):
 
 parser=argparse.ArgumentParser()
 parser.add_argument("input",type=argparse.FileType("r"))
-parser.add_argument("-O","--output",type=argparse.FileType("w"),default="out.py")
+parser.add_argument("-o","--output",type=argparse.FileType("w"),default="out.py")
 args=parser.parse_args()
 
 with open("grammar.lark") as f:

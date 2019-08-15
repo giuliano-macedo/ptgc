@@ -49,8 +49,11 @@ class CheckExpsTransformer(Transformer):
 			elif t.type=="NUMBER":
 				return "real"
 			elif t.type=="ID":
-				return self.symtable[t.value]
-			return
+				ans=self.symtable[t.value]
+				if ans=="function":
+					raise SyntaxError("Invalid expression : function inside expression")
+				return ans
+			raise SyntaxError("Invalid token for expression")
 		if type(args[0])==Token:#parentesis exp
 			return args[1]
 		a,op,b=args
@@ -160,7 +163,7 @@ class ptg2pyTransformer(Transformer):
 
 	def command_for(self,args):
 		_id=args[1]
-		a,b,c=(args[c] for c in (3,5,7))
+		a,b,c=args[3:8:2]
 		body=args[-2]
 		return f"for {_id} in range({a},{b},{c}):\n{body}"
 	def command_while(self,args):

@@ -1,0 +1,5 @@
+algoritmo "invalid expression"
+variaveis
+inicio
+	escreva(1+(2*leia));
+fimalgoritmo
