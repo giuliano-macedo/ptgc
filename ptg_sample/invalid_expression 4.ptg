@@ -1,0 +1,6 @@
+algoritmo "invalid expression"
+variaveis
+	s:caractere;
+inicio
+	s<-24;
+fimalgoritmo

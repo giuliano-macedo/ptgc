@@ -1,0 +1,6 @@
+algoritmo "invalid expression"
+variaveis
+	i:inteiro;
+inicio
+	i<-"Não";
+fimalgoritmo

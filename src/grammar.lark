@@ -11,10 +11,10 @@ command : attribution
 command_increment : ID /\+\=/ exp
 	|ID /\+\+/
 stop:STOP
-attribution: ID ATTR (exp|STRING) ";"
+attribution: ID ATTR exp ";"
 function_call : function_print
 	|function_scan
-function_print:"escreva" "(" (exp|STRING) ("," (exp|STRING))* ")"
+function_print:"escreva" "(" exp ("," exp)* ")"
 function_scan :"leia" "(" ID ")"
 
 command_conditional: command_if
@@ -33,6 +33,7 @@ exp : exp (AROP|BINOP) exp
 	| /\(/ exp /\)/
 	| ID
 	| NUMBER
+	| STRING
 
 
 SCRIPT_START: /algor(i|í)tmo/

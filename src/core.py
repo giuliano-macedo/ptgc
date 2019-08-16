@@ -66,6 +66,15 @@ class CheckExpsTransformer(Transformer):
 			if op.type not in {"BINOP","AROP"}:
 				raise SyntaxError(f"Error, operation ({op.value}) invalid")
 			return "real"
+	def attribution(self,args):
+		_id=args[0]
+		exp_type=args[2]
+		id_type=self.symtable[_id]
+		if (id_type!="caractere") and (exp_type=="caractere"):
+			raise SyntaxError("Can't assign non-string to string")
+		if (id_type=="caractere") and (exp_type!="caractere"):
+			raise SyntaxError("Can't assign string to non-string")
+
 ptgtype2pytype={
 	"caractere":"str",
 	"real":		"float",
